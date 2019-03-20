@@ -8,13 +8,26 @@
     pointers to neighbors on "edges" hash.
 */
 std::vector<Node*>* Graph::Neighbors(Node* node){
-    return &(this->edges.find(node->GetPos())->second);
+    return &(this->edges.find(&node->GetPos())->second);
 }
 
 std::vector<Node*> Graph::BreadthFirstSearch(){
 
+    std::queue<Node*> frontier;
+    frontier.push(&this->nodes[0]);                    // Start position
+    std::unordered_map<NODE::Pos, Node*> came_from;    // Hash <NodePos, >
+    Node *current;
 
+    while (!frontier.empty){
 
+        current = frontier.front;
+        for (auto & element : *this->Neighbors(current)) {
+            if (came_from.find(element->GetPos()) != came_from.end()){
+                frontier.push(element);
+                came_from.insert(std::make_pair(element->GetPos(), current));
+            };
+        }
+    }
 }
 
 Graph::Graph()
@@ -47,16 +60,16 @@ Graph::Graph()
     std::vector<Node*> vec_9 {&nodes[5], &nodes[6], &nodes[8]};
 
     // Creates a hash with the existing edges
-    std::unordered_map<NODE::Pos, std::vector<Node*>> edgs({
-        { nodes[0].GetPos(), vec_1},
-        { nodes[1].GetPos(), vec_2},
-        { nodes[2].GetPos(), vec_3},
-        { nodes[3].GetPos(), vec_4},
-        { nodes[4].GetPos(), vec_5},
-        { nodes[5].GetPos(), vec_6},
-        { nodes[6].GetPos(), vec_7},
-        { nodes[7].GetPos(), vec_8},
-        { nodes[8].GetPos(), vec_9},
+    std::unordered_map<NODE::Pos*, std::vector<Node*>> edgs({
+        { &nodes[0].GetPos(), vec_1},
+        { &nodes[1].GetPos(), vec_2},
+        { &nodes[2].GetPos(), vec_3},
+        { &nodes[3].GetPos(), vec_4},
+        { &nodes[4].GetPos(), vec_5},
+        { &nodes[5].GetPos(), vec_6},
+        { &nodes[6].GetPos(), vec_7},
+        { &nodes[7].GetPos(), vec_8},
+        { &nodes[8].GetPos(), vec_9},
     });
 
     // Set Graph class edges

@@ -10,7 +10,7 @@ class Graph
 {
     private:
         std::vector<Node> nodes;
-        std::unordered_map<NODE::Pos, std::vector<Node*>> edges;
+        std::unordered_map<NODE::Pos*, std::vector<Node*>> edges;
     public:
         Graph(/* args */);
         ~Graph();
