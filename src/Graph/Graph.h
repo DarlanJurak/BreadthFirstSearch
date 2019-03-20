@@ -10,12 +10,13 @@ class Graph
 {
     private:
         std::vector<Node> nodes;
-        std::unordered_map<NODE::Pos, std::vector<Node*>> edges;
+        // std::unordered_map<NODE::Pos, std::vector<Node*>> edges;
     public:
         Graph();
         ~Graph();
-        std::vector<Node*>* Neighbors(Node* node);
-        std::vector<Node*> BreadthFirstSearch();
+        // std::vector<Node*>* Neighbors(Node* node);
+        // std::vector<Node*> BreadthFirstSearch();
+        void TestNodes();
 };
 
 #endif

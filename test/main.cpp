@@ -6,9 +6,10 @@ int main(){
 
     Graph graph;
 
-    graph.BreadthFirstSearch();
+    // graph.BreadthFirstSearch();
 
     std::cout << "dalhe" << std::endl;
+    graph.TestNodes();
 
     return 0;
 }

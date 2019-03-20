@@ -5,8 +5,7 @@ NODE::Pos Node::GetPos(){
 }
 
 
-Node::Node()
-{
+Node::Node(){
     position.x = 0;
     position.y = 0;
 }
