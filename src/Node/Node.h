@@ -1,5 +1,5 @@
 #ifndef NODE_H
-#define NODE_Hs
+#define NODE_H
 
 namespace NODE {
 
