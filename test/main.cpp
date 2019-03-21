@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include <vector>
+#include <queue>
 
 struct Graph{
 
@@ -11,6 +12,8 @@ struct Graph{
 
 };
 
+std::vector<char> BreadthFirstSearch(Graph, char);
+
 int main(){
 
     Graph graph {{
@@ -21,5 +24,19 @@ int main(){
         {'E', {'B'}},
     }};
 
+    std::vector<char> path = BreadthFirstSearch(graph,'A');
+    
     return 0;
+}
+
+std::vector<char> BreadthFirstSearch(Graph graph, char start){
+
+    std::vector<char> path;
+
+    std::queue<char> frontier;
+    frontier.push(start);
+
+
+    return path;
+
 }
