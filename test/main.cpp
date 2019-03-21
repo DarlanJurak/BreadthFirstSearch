@@ -42,28 +42,28 @@ int main(){
 
 std::vector<char> BreadthFirstSearch(Graph graph, char start){
 
-    char current;
-    std::vector<char> path;
+    char current;                                                                   // current node being examined
+    std::vector<char> path;                                                         // nodes path from start to goal
 
-    std::queue<char> frontier;
-    frontier.push(start);
-    
-    std::unordered_map<char, char> came_from;
-    came_from.insert(std::pair<char, char>(start, NULL));
+    std::queue<char> frontier;                                                      // nodes that compound the external frontier of the search expansion
+    frontier.push(start);                                                           // first frontier start with the start node
 
-    while(! frontier.empty()){
-        current = frontier.front();
-        frontier.pop();
-        for (auto next : graph.neighbors(current)){
+    std::unordered_map<char, char> came_from;                                       // hash composed by node and from where it came from
+    came_from.insert(std::pair<char, char>(start, NULL));                           // initial condition
+
+    while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet expand frontier
+        current = frontier.front();                                                 // analyse frontier's nodes
+        frontier.pop();                                                             
+        for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
             if (came_from.find(next) == came_from.end()) {
-                frontier.push(next);
-                came_from.insert(std::pair<char, char>(next, current));
+                frontier.push(next);                                                // update frontier
+                came_from.insert(std::pair<char, char>(next, current));             // saves parent
             }
         }
     }
 
-    for( auto element : came_from){
-        std::cout << element.first << " came from " << element.second << std::endl;
+    for(auto element : came_from){                                                  // cout nodes and their parent
+        std::cout << element.first << " came from " << element.second << std::endl; 
     }    
 
     return path;
