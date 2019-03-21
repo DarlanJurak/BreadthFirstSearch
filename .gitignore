@@ -7,3 +7,6 @@
 .vscode/ipch/c5977aaa26709718/mmap_address.bin
 .vscode/ipch/c68a220a8b68f994/mmap_address.bin
 .vscode/ipch/c68a220a8b68f994/main.ipch
+.vscode/launch.json
+.vscode/tasks.json
+bin/test
