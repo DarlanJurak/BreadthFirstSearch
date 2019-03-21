@@ -26,13 +26,13 @@ int main(){
     // }};
 
     Graph graph {{
+        {'S', {'A', 'B'}},
         {'A', {'S', 'B', 'D'}},
         {'B', {'S', 'A', 'C'}},
         {'C', {'B', 'E'}},
         {'D', {'A', 'G'}},
         {'E', {'C'}},
-        {'G', {'D'}},
-        {'S', {'A', 'B'}}
+        {'G', {'D'}}        
     }};
 
     std::vector<char> path = BreadthFirstSearch(graph,'S');
@@ -54,6 +54,7 @@ std::vector<char> BreadthFirstSearch(Graph graph, char start){
     while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet expand frontier
         current = frontier.front();                                                 // analyse frontier's nodes
         frontier.pop();                                                             
+        std::cout << "Visiting " << current << '\n';
         for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
             if (came_from.find(next) == came_from.end()) {
                 frontier.push(next);                                                // update frontier
@@ -64,7 +65,7 @@ std::vector<char> BreadthFirstSearch(Graph graph, char start){
 
     for(auto element : came_from){                                                  // cout nodes and their parent
         std::cout << element.first << " came from " << element.second << std::endl; 
-    }    
+    }
 
     return path;
 
