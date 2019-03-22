@@ -55,6 +55,11 @@ std::vector<char> BreadthFirstSearch(Graph graph, char start, char goal){
     while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet then expand frontier
         current = frontier.front();                                                 // analyse frontier's nodes
         frontier.pop();                                                             
+
+        if (current == goal){
+            break;
+        }
+
         std::cout << "Visiting " << current << '\n';
         for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
             if (came_from.find(next) == came_from.end()) {                          // if is not in the closed list
