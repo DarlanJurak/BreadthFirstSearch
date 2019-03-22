@@ -1,7 +1,8 @@
-#include <unordered_map>
-#include <vector>
-#include <queue>
-#include <iostream>
+#include <unordered_map>    // came_from ("closed list" with track)
+#include <vector>           // path
+#include <queue>            // frontier
+#include <iostream>         // "debug"
+#include <algorithm>        // std::reverse
 
 struct Graph{
 
@@ -13,7 +14,7 @@ struct Graph{
 
 };
 
-std::vector<char> BreadthFirstSearch(Graph, char);
+std::vector<char> BreadthFirstSearch(Graph, char start, char goal);
 
 int main(){
 
@@ -35,12 +36,12 @@ int main(){
         {'G', {'D'}}        
     }};
 
-    std::vector<char> path = BreadthFirstSearch(graph,'S');
+    std::vector<char> path = BreadthFirstSearch(graph,'S', 'G');
     
     return 0;
 }
 
-std::vector<char> BreadthFirstSearch(Graph graph, char start){
+std::vector<char> BreadthFirstSearch(Graph graph, char start, char goal){
 
     char current;                                                                   // current node being examined
     std::vector<char> path;                                                         // nodes path from start to goal
@@ -51,12 +52,12 @@ std::vector<char> BreadthFirstSearch(Graph graph, char start){
     std::unordered_map<char, char> came_from;                                       // hash composed by node and from where it came from
     came_from.insert(std::pair<char, char>(start, NULL));                           // initial condition
 
-    while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet expand frontier
+    while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet then expand frontier
         current = frontier.front();                                                 // analyse frontier's nodes
         frontier.pop();                                                             
         std::cout << "Visiting " << current << '\n';
         for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
-            if (came_from.find(next) == came_from.end()) {
+            if (came_from.find(next) == came_from.end()) {                          // if is not in the closed list
                 frontier.push(next);                                                // update frontier
                 came_from.insert(std::pair<char, char>(next, current));             // saves parent
             }
@@ -67,6 +68,22 @@ std::vector<char> BreadthFirstSearch(Graph graph, char start){
         std::cout << element.first << " came from " << element.second << std::endl; 
     }
 
+    // discovering path
+    current = goal;
+    while(current != start){
+        path.push_back(current);
+        current = came_from[current];
+    }
+    path.push_back(start);
+    std::reverse(path.begin(), path.end());
+
+    // printing path
+    std::cout << "Path: ";
+    for(auto node : path){
+        std::cout << node;
+    }
+    std::cout << std::endl;
+    
     return path;
 
 }
