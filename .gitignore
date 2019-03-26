@@ -10,3 +10,5 @@
 .vscode/launch.json
 .vscode/tasks.json
 bin/test
+.vscode/ipch/ba9b5ba3ac64033/client-donnie.ipch
+.vscode/ipch/ba9b5ba3ac64033/mmap_address.bin
