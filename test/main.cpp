@@ -1,10 +1,16 @@
 #include <unordered_map>    // came_from ("closed list" with track)
-#include <vector>           // path
-#include <queue>            // frontier
+#include <vector>           // Final discovered path (s toed in a vector)
+#include <queue>            // Auxiliary data structure for definition of frontier in the expansion analysis in Breadth First Search algorithm
 #include <iostream>         // "debug"
-#include <algorithm>        // std::reverse
-#include <unordered_set>    // 
+#include <algorithm>        // std::reverse (used as aesthetic to show the found path)
+#include <unordered_set>    // Store Pos structs
+#include <iomanip>          // std::setw (draw_grid)
 
+/*
+    Graph
+        - Compounded by edges (explicitly) and nodes (implicitly).
+        - Capable to inform the neighbors of a node.
+*/
 struct Graph{
 
     std::unordered_map<char, std::vector<char>> edges;
@@ -15,36 +21,40 @@ struct Graph{
 
 };
 
-// using namespace std;
 
 struct Pos{
 
-		int x;
-		int y;
-				
-		// size_t operator()(const Pos& p) const noexcept {
-		//     size_t hash = (p.x + 10 * p.y);
-		//     return hash;
-		// };
+	int x;
+	int y;
+};
 
-	};
+// Comparison method for Pos struct
+bool operator==(const Pos& pos1, const Pos& pos2){
+		return pos1.x == pos2.x && pos1.y == pos2.y;
+}
 
+// Hash definition for specialized <unordered_set> of Pos struct
 namespace std{
 
 	template<> struct hash<Pos>{
+        typedef Pos argument_type;
+        typedef std::size_t result_type;
 		std::size_t operator()(const Pos& p) const noexcept
 		{
 		    return std::hash<int>()(p.x ^ (p.y << 4));
 		}
 	};
-	
-	bool operator==(const Pos& pos1, const Pos& pos2){
-		return pos1.x == pos2.x && pos1.y == pos2.y;
-	}
 }
 
+// Possible moviment's directions
 static std::array<Pos, 4> DIRS = {Pos{1, 0}, Pos{0, -1}, Pos{-1, 0}, Pos{0, 1}};
 
+/*
+    Squared grid:
+        - Size: width x height
+        - Compounded by walls (borders and obstacles inside the grid)
+        - 
+*/
 struct SquareGrid {
     
     int width, height;
@@ -61,14 +71,14 @@ struct SquareGrid {
         return walls.find(id) == walls.end();
     }
 
-    std::vector<Pos> neighbors(Pos id) const {
+    std::vector<Pos> Neighbors(Pos id) const {
         std::vector<Pos> results;
 
         for (Pos dir : DIRS) {
             Pos next{id.x + dir.x, id.y + dir.y};
-            // if (in_bounds(next) && passable(next)) {
-            //     results.push_back(next);
-            // }
+            if (in_bounds(next) && passable(next)) {
+                results.push_back(next);
+            }
         }
 
         if ((id.x + id.y) % 2 == 0) {
@@ -79,6 +89,102 @@ struct SquareGrid {
         return results;
     }
 };
+
+// This outputs a grid. Pass in a distances map if you want to print
+// the distances, or pass in a point_to map if you want to print
+// arrows that point to the parent location, or pass in a path vector
+// if you want to draw the path.
+template<class Graph>
+void draw_grid(const Graph& graph, int field_width,
+               std::unordered_map<Pos, double>* distances=nullptr,
+               std::unordered_map<Pos, Pos>* point_to=nullptr,
+               std::vector<Pos>* path=nullptr) {
+  for (int y = 0; y != graph.height; ++y) {
+    for (int x = 0; x != graph.width; ++x) {
+      Pos id {x, y};
+      std::cout << std::left << std::setw(field_width);
+      if (graph.walls.find(id) != graph.walls.end()) {
+        std::cout << std::string(field_width, '#');
+      } else if (point_to != nullptr && point_to->count(id)) {
+        Pos next = (*point_to)[id];
+        if (next.x == x + 1) { std::cout << "> "; }
+        else if (next.x == x - 1) { std::cout << "< "; }
+        else if (next.y == y + 1) { std::cout << "v "; }
+        else if (next.y == y - 1) { std::cout << "^ "; }
+        else { std::cout << "* "; }
+      } else if (distances != nullptr && distances->count(id)) {
+        std::cout << (*distances)[id];
+      } else if (path != nullptr && find(path->begin(), path->end(), id) != path->end()) {
+        std::cout << '@';
+      } else {
+        std::cout << '.';
+      }
+    }
+    std::cout << '\n';
+  }
+}
+
+void add_rect(SquareGrid& grid, int x1, int y1, int x2, int y2) {
+  for (int x = x1; x < x2; ++x) {
+    for (int y = y1; y < y2; ++y) {
+      grid.walls.insert(Pos{x, y});
+    }
+  }
+}
+
+SquareGrid make_diagram1() {
+  SquareGrid grid(30, 15);
+  add_rect(grid, 3, 3, 5, 12);
+  add_rect(grid, 13, 4, 15, 15);
+  add_rect(grid, 21, 0, 23, 7);
+  add_rect(grid, 23, 5, 26, 7);
+  return grid;
+}
+
+// struct GridWithWeights: SquareGrid {
+//   std::unordered_set<Pos> forests;
+//   GridWithWeights(int w, int h): SquareGrid(w, h) {}
+//   double cost(Pos from_node, Pos to_node) const {
+//     return forests.find(to_node) != forests.end()? 5 : 1;
+//   }
+// };
+
+// GridWithWeights make_diagram4() {
+//   GridWithWeights grid(10, 10);
+//   add_rect(grid, 1, 7, 4, 9);
+//   typedef Pos L;
+//   grid.forests = std::unordered_set<Pos> {
+//     L{3, 4}, L{3, 5}, L{4, 1}, L{4, 2},
+//     L{4, 3}, L{4, 4}, L{4, 5}, L{4, 6},
+//     L{4, 7}, L{4, 8}, L{5, 1}, L{5, 2},
+//     L{5, 3}, L{5, 4}, L{5, 5}, L{5, 6},
+//     L{5, 7}, L{5, 8}, L{6, 2}, L{6, 3},
+//     L{6, 4}, L{6, 5}, L{6, 6}, L{6, 7},
+//     L{7, 3}, L{7, 4}, L{7, 5}
+//   };
+//   return grid;
+// }
+
+// template<typename T, typename priority_t>
+// struct PriorityQueue {
+//   typedef std::pair<priority_t, T> PQElement;
+//   std::priority_queue<PQElement, std::vector<PQElement>,
+//                  std::greater<PQElement>> elements;
+
+//   inline bool empty() const {
+//      return elements.empty();
+//   }
+
+//   inline void put(T item, priority_t priority) {
+//     elements.emplace(priority, item);
+//   }
+
+//   T get() {
+//     T best_item = elements.top().second;
+//     elements.pop();
+//     return best_item;
+//   }
+// };
 
 
 std::vector<char> BreadthFirstSearch(Graph, char start, char goal);
@@ -93,24 +199,29 @@ int main(){
     //     {'E', {'B'}},
     // }};
 
-    Graph graph {{
-        {'S', {'A', 'B'}},
-        {'A', {'S', 'B', 'D'}},
-        {'B', {'S', 'A', 'C'}},
-        {'C', {'B', 'E'}},
-        {'D', {'A', 'G'}},
-        {'E', {'C'}},
-        {'G', {'D'}}        
-    }};
+    // Graph graph {{
+    //     {'S', {'A', 'B'}},
+    //     {'A', {'S', 'B', 'D'}},
+    //     {'B', {'S', 'A', 'C'}},
+    //     {'C', {'B', 'E'}},
+    //     {'D', {'A', 'G'}},
+    //     {'E', {'C'}},
+    //     {'G', {'D'}}        
+    // }};
 
-    std::vector<char> path = BreadthFirstSearch(graph,'S', 'G');
+    // std::vector<char> path = BreadthFirstSearch(graph,'S', 'G');
 
-    // printing path
-    std::cout << "Path: ";
-    for(auto node : path){
-        std::cout << node;
-    }
-    std::cout << std::endl;
+    // // printing path
+    // std::cout << "Path: ";
+    // for(auto node : path){
+    //     std::cout << node;
+    // }
+    // std::cout << std::endl;
+
+    SquareGrid grid = make_diagram1();
+    Pos goal;
+    auto parents = BreadthFirstSearch(grid, goal);
+    draw_grid(grid, 2);
     
     return 0;
 }
