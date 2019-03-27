@@ -3,7 +3,7 @@
 #include <queue>            // frontier
 #include <iostream>         // "debug"
 #include <algorithm>        // std::reverse
-#include <unordered_set>
+#include <unordered_set>    // 
 
 struct Graph{
 
@@ -15,63 +15,73 @@ struct Graph{
 
 };
 
+// using namespace std;
+
 struct Pos{
 
-    unsigned int x;
-    unsigned int y;
+		int x;
+		int y;
+				
+		// size_t operator()(const Pos& p) const noexcept {
+		//     size_t hash = (p.x + 10 * p.y);
+		//     return hash;
+		// };
 
-};
+	};
+
+namespace std{
+
+	template<> struct hash<Pos>{
+		std::size_t operator()(const Pos& p) const noexcept
+		{
+		    return std::hash<int>()(p.x ^ (p.y << 4));
+		}
+	};
+	
+	bool operator==(const Pos& pos1, const Pos& pos2){
+		return pos1.x == pos2.x && pos1.y == pos2.y;
+	}
+}
+
+static std::array<Pos, 4> DIRS = {Pos{1, 0}, Pos{0, -1}, Pos{-1, 0}, Pos{0, 1}};
 
 struct SquareGrid {
-  static std::array<Pos, 4> DIRS;
+    
+    int width, height;
+    std::unordered_set<Pos> walls;
 
-  int width, height;
-  std::unordered_set<Pos> walls;
+    SquareGrid(int width_, int height_) : width(width_), height(height_) {}
 
-  SquareGrid(int width_, int height_)
-     : width(width_), height(height_) {}
-
-  bool in_bounds(Pos id) const {
-    return 0 <= id.x && id.x < width
-        && 0 <= id.y && id.y < height;
-  }
-
-  bool passable(Pos id) const {
-    return walls.find(id) == walls.end();
-  }
-
-  std::vector<Pos> neighbors(Pos id) const {
-    std::vector<Pos> results;
-
-    for (Pos dir : DIRS) {
-      Pos next{id.x + dir.x, id.y + dir.y};
-      if (in_bounds(next) && passable(next)) {
-        results.push_back(next);
-      }
+    bool in_bounds(Pos id) const {
+        return 0 <= id.x && id.x < width
+            && 0 <= id.y && id.y < height;
     }
 
-    if ((id.x + id.y) % 2 == 0) {
-      // aesthetic improvement on square grids
-      std::reverse(results.begin(), results.end());
+    bool passable(Pos id) const {
+        return walls.find(id) == walls.end();
     }
 
-    return results;
-  }
+    std::vector<Pos> neighbors(Pos id) const {
+        std::vector<Pos> results;
+
+        for (Pos dir : DIRS) {
+            Pos next{id.x + dir.x, id.y + dir.y};
+            // if (in_bounds(next) && passable(next)) {
+            //     results.push_back(next);
+            // }
+        }
+
+        if ((id.x + id.y) % 2 == 0) {
+            // aesthetic improvement on square grids
+            std::reverse(results.begin(), results.end());
+        }
+
+        return results;
+    }
 };
 
 
 std::vector<char> BreadthFirstSearch(Graph, char start, char goal);
-
-namespace std {
-    /* implement hash function so we can put Pos into an unordered_set */
-    template <> struct hash<Pos> {
-        typedef Pos argument_type;
-        typedef std::size_t result_type;
-        std::size_t operator()(const Pos& id) const noexcept {
-            return std::hash<int>()(id.x ^ (id.y << 4));
-        }
-    };
-}
 
 int main(){
 
