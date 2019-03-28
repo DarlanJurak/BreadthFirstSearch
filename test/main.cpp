@@ -48,6 +48,7 @@ namespace std{
 
 // Possible moviment's directions
 static std::array<Pos, 4> DIRS = {Pos{1, 0}, Pos{0, -1}, Pos{-1, 0}, Pos{0, 1}};
+// static std::array<Pos, 8> DIRS = {Pos{0, 1}, Pos{1, 1}, Pos{1, 0}, Pos{1, -1}, Pos{0, -1}, Pos{-1, -1}, Pos{-1, 0}, Pos{-1, -1}};
 
 /*
     Squared grid:
@@ -187,7 +188,76 @@ SquareGrid make_diagram1() {
 // };
 
 
-std::vector<char> BreadthFirstSearch(Graph, char start, char goal);
+// std::vector<char> BreadthFirstSearch(Graph, char start, char goal);
+// std::unordered_map<Pos, Pos> BreadthFirstSearch(SquareGrid grid, Pos start);
+
+// std::vector<char> BreadthFirstSearch(Graph graph, char start, char goal){
+
+//     char current;                                                                   // current node being examined
+//     std::vector<char> path;                                                         // nodes path from start to goal
+
+//     std::queue<char> frontier;                                                      // nodes that compound the external frontier of the search expansion
+//     frontier.push(start);                                                           // first frontier start with the start node
+
+//     std::unordered_map<char, char> came_from;                                       // hash composed by node and from where it came from
+//     came_from.insert(std::pair<char, char>(start, NULL));                           // initial condition
+
+//     while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet then expand frontier
+//         current = frontier.front();                                                 // analyse frontier's nodes
+//         frontier.pop();                                                             
+
+//         if (current == goal){
+//             break;
+//         }
+
+//         std::cout << "Visiting " << current << '\n';
+//         for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
+//             if (came_from.find(next) == came_from.end()) {                          // if is not in the closed list
+//                 frontier.push(next);                                                // update frontier
+//                 came_from.insert(std::pair<char, char>(next, current));             // saves parent
+//             }
+//         }
+//     }
+
+//     for(auto element : came_from){                                                  // cout nodes and theirs parent
+//         std::cout << element.first << " came from " << element.second << std::endl; 
+//     }
+
+//     // discovering path
+//     current = goal;
+//     while(current != start){
+//         path.push_back(current);
+//         current = came_from[current];
+//     }
+//     path.push_back(start);
+//     std::reverse(path.begin(), path.end());
+    
+//     return path;
+
+// }
+
+// template<typename Pos, typename Graph>
+std::unordered_map<Pos, Pos>
+BreadthFirstSearch(SquareGrid grid, Pos start) {
+  std::queue<Pos> frontier;
+  frontier.push(start);
+
+  std::unordered_map<Pos, Pos> came_from;
+  came_from[start] = start;
+
+  while (!frontier.empty()) {
+    Pos current = frontier.front();
+    frontier.pop();
+
+    for (Pos next : grid.Neighbors(current)) {
+      if (came_from.find(next) == came_from.end()) {
+        frontier.push(next);
+        came_from[next] = current;
+      }
+    }
+  }
+  return came_from;
+}
 
 int main(){
 
@@ -219,54 +289,11 @@ int main(){
     // std::cout << std::endl;
 
     SquareGrid grid = make_diagram1();
-    Pos goal;
-    auto parents = BreadthFirstSearch(grid, goal);
-    draw_grid(grid, 2);
+    Pos start;
+    start.x = 2;
+    start.y = 2;
+    auto parents = BreadthFirstSearch(grid, start);
+    draw_grid(grid, 2, nullptr, &parents);
     
     return 0;
-}
-
-std::vector<char> BreadthFirstSearch(Graph graph, char start, char goal){
-
-    char current;                                                                   // current node being examined
-    std::vector<char> path;                                                         // nodes path from start to goal
-
-    std::queue<char> frontier;                                                      // nodes that compound the external frontier of the search expansion
-    frontier.push(start);                                                           // first frontier start with the start node
-
-    std::unordered_map<char, char> came_from;                                       // hash composed by node and from where it came from
-    came_from.insert(std::pair<char, char>(start, NULL));                           // initial condition
-
-    while(! frontier.empty()){                                                      // while there are reachable nodes that were not explored yet then expand frontier
-        current = frontier.front();                                                 // analyse frontier's nodes
-        frontier.pop();                                                             
-
-        if (current == goal){
-            break;
-        }
-
-        std::cout << "Visiting " << current << '\n';
-        for (auto next : graph.neighbors(current)){                                 // update frontier adding the neighbors nodes of the nodes on the current frontier and mark each node's parent
-            if (came_from.find(next) == came_from.end()) {                          // if is not in the closed list
-                frontier.push(next);                                                // update frontier
-                came_from.insert(std::pair<char, char>(next, current));             // saves parent
-            }
-        }
-    }
-
-    for(auto element : came_from){                                                  // cout nodes and theirs parent
-        std::cout << element.first << " came from " << element.second << std::endl; 
-    }
-
-    // discovering path
-    current = goal;
-    while(current != start){
-        path.push_back(current);
-        current = came_from[current];
-    }
-    path.push_back(start);
-    std::reverse(path.begin(), path.end());
-    
-    return path;
-
 }
