@@ -238,7 +238,7 @@ SquareGrid make_diagram1() {
 
 // template<typename Pos, typename Graph>
 std::unordered_map<Pos, Pos>
-BreadthFirstSearch(SquareGrid grid, Pos start) {
+BreadthFirstSearch(SquareGrid grid, Pos start, Pos goal) {
   std::queue<Pos> frontier;
   frontier.push(start);
 
@@ -248,6 +248,10 @@ BreadthFirstSearch(SquareGrid grid, Pos start) {
   while (!frontier.empty()) {
     Pos current = frontier.front();
     frontier.pop();
+
+    if (current == goal){
+      break;
+    }
 
     for (Pos next : grid.Neighbors(current)) {
       if (came_from.find(next) == came_from.end()) {
@@ -292,7 +296,10 @@ int main(){
     Pos start;
     start.x = 2;
     start.y = 2;
-    auto parents = BreadthFirstSearch(grid, start);
+    Pos goal;
+    start.x = 17;
+    start.y = 11;
+    auto parents = BreadthFirstSearch(grid, start, goal);
     draw_grid(grid, 2, nullptr, &parents);
     
     return 0;
